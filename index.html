@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<!--
+  Grounding Generative Policies in Physics — project page
+  Self-contained static site. All asset paths are relative (assets/...).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Grounding Generative Policies in Physics — Optimization-Guided Diffusion for Robot Control</title>
+<meta name="description" content="An inference-time framework that replaces the DDIM sampling perturbation with a constrained optimization variable, grounding a frozen diffusion prior in physical feasibility across robot embodiments without retraining." />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Grounding Generative Policies in Physics: Optimization-Guided Diffusion for Robot Control" />
+<meta property="og:description" content="One frozen diffusion prior, reused across robot arms and tasks by swapping only an inference-time feasibility module. Up to +20pp grasp success and +23pp visuomotor success over the best baseline — no retraining." />
+<meta property="og:image" content="assets/img/og.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wrap">
+    <a class="brand" href="#top">Optimization-Guided Diffusion</a>
+    <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+    <div class="navlinks">
+      <a class="navlink" href="#overview">Abstract</a>
+      <a class="navlink" href="#video">Video</a>
+      <a class="navlink" href="#method">Method</a>
+      <a class="navlink" href="#applications">Applications</a>
+      <a class="navlink" href="#hardware">Real-World</a>
+      <a class="navlink" href="#results">Results</a>
+      <a class="navlink" href="#bibtex">BibTeX</a>
+    </div>
+  </div>
+</nav>
+
+<header id="top" class="hero">
+  <div class="wrap">
+    <span class="badge">Preprint 2026</span>
+    <h1>Grounding Generative Policies in Physics:<br />Optimization-Guided Diffusion for Robot Control</h1>
+    <p class="authors">
+      Sabrina Bodmer<sup>*</sup>, René Zurbrügg<sup>*</sup>, Tifanny Portela, Hao Ma,
+      Alexandre Didier, Marco Hutter, Colin Jones<sup>&dagger;</sup>, Melanie Zeilinger<sup>&dagger;</sup>
+    </p>
+    <p class="affil">ETH Zurich &nbsp;&middot;&nbsp; EPFL</p>
+    <p class="note-eq"><sup>*</sup>Equal contribution &nbsp;&middot;&nbsp; <sup>&dagger;</sup>Equal supervision</p>
+
+    <div class="btn-row">
+      <a class="btn primary" href="#">Paper / arXiv</a>
+      <a class="btn ghost" href="#video">Video</a>
+    </div>
+
+    <figure class="hero-figure">
+      <img src="assets/img/teaser.png" alt="One task-space diffusion prior reused across robot embodiments, collision-avoidance, and controller dynamics by swapping only an inference-time optimization module." />
+      <figcaption><b>One frozen prior, many feasible deployments.</b> A shared task-space diffusion prior — for dexterous grasps or visuomotor trajectories — is grounded to a target robot by an <b>optimization-guided denoising</b> module. Swapping only the inference-time feasibility objectives (embodiment, collision avoidance, controller dynamics) produces feasible grasp predictions and executable policy rollouts across arms, with no retraining.</figcaption>
+    </figure>
+  </div>
+</header>
+
+<section id="overview" class="section abstract">
+  <div class="wrap">
+    <p class="eyebrow">Abstract</p>
+    <h2 class="section-title">Generative priors that respect physics — imposed at inference time, no retraining.</h2>
+    <p>Diffusion models sample effectively from high-dimensional, multimodal distributions, but their outputs may violate deployment constraints. For task-space robot policies, generated grasps, waypoints, or trajectories can be distributionally valid yet <b>infeasible</b> — violating reachability, collision-avoidance, or closed-loop executability requirements. This embodiment gap limits zero-shot deployment across robots, even when the task-space behavior itself is transferable.</p>
+    <p>We propose an inference-time optimization framework that couples behavior generation to physical feasibility by formulating <b>diffusion guidance as a constrained optimization problem</b>. Our key insight is to replace the sampling perturbation in the backward process with an optimized correction, allowing hard constraints or soft penalties to be imposed during sampling — without retraining the diffusion model, while keeping samples close to the learned prior. Across settings and embodiments, optimization-guided denoising matches the feasibility of projection- and gradient-guidance baselines while better preserving grasp quality, improving controller-level executability and task success by up to <b>20&nbsp;pp on dexterous grasping</b> and <b>23&nbsp;pp on visuomotor manipulation</b> over the best baseline.</p>
+
+    <div class="media-row cols-2" style="margin-top:30px;">
+      <figure class="figure-card">
+        <video class="clip" src="assets/video/clip_floor.mp4" muted loop playsinline preload="metadata" data-lazy poster="assets/img/poster.jpg"></video>
+        <p class="clip-cap">Zero-shot hardware deployment on a Franka&nbsp;+&nbsp;XHand. <b>Left:</b> gradient-guidance baseline. <b>Right:</b> our optimization guidance.</p>
+      </figure>
+      <figure class="figure-card">
+        <video class="clip" src="assets/video/clip_clutter.mp4" muted loop playsinline preload="metadata" data-lazy></video>
+        <p class="clip-cap">In cluttered scenes our corrections preserve a stable grasp while respecting environment collisions; the baseline often drifts off the object.</p>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="video" class="section">
+  <div class="wrap">
+    <p class="eyebrow">Supplementary Video</p>
+    <h2 class="section-title">Overview &amp; results in 3 minutes</h2>
+    <p class="section-lead">Method walkthrough, simulated grasping and visuomotor manipulation across both arms, and real-world rollouts.</p>
+    <figure class="figure-card">
+      <video controls preload="metadata" poster="assets/img/poster.jpg" style="width:100%; border-radius:8px;">
+        <source src="assets/video/supp.mp4" type="video/mp4" />
+      </video>
+    </figure>
+  </div>
+</section>
+
+<section id="method" class="section">
+  <div class="wrap">
+    <p class="eyebrow">Method</p>
+    <h2 class="section-title">Replace the DDIM perturbation with an optimized correction</h2>
+    <p class="section-lead">A DDIM reverse step splits into a deterministic model prediction <span class="mono">&mu;<sub>&theta;</sub>(x<sub>k</sub>,k)</span> plus a stochastic perturbation <span class="mono">&sigma;<sub>k</sub>&omega;</span>. We keep the prediction, but replace the random <span class="mono">&omega;</span> with an optimization variable <span class="mono">&delta;<sub>k</sub></span> that enforces feasibility — so each step stays close to the pretrained sampling trajectory.</p>
+    <figure class="figure-card">
+      <img src="assets/img/overview.png" alt="Optimization-guided diffusion: a task-space prior generates a reverse step; the DDIM perturbation is replaced by a structured correction from a constrained optimization problem with embodiment- and environment-specific costs." />
+      <figcaption><b>Optimization-guided diffusion.</b> A task-space diffusion prior generates an initial reverse denoising step. Instead of sampling the DDIM perturbation <span class="mono">&omega;<sub>k</sub></span>, we replace it with a structured correction <span class="mono">&delta;<sub>k</sub></span> obtained from a constrained optimization problem. The objective minimizes the perturbation magnitude while incorporating embodiment- and environment-specific costs and constraints (<span class="mono">J</span>, <span class="mono">&Xscr;<sub>target</sub></span>, <span class="mono">&Xscr;<sub>init</sub></span>). By changing only this constraint module, the same frozen prior is reused across different manipulators.</figcaption>
+    </figure>
+    <div class="steps">
+      <div class="step"><div class="k">1</div><h3>Optimization-constrained denoising</h3><p>An inference-time framework that swaps the DDIM sampling perturbation for a constrained optimization variable, applying small, structured corrections to a frozen diffusion prior — admitting a clean MAP interpretation.</p></div>
+      <div class="step"><div class="k">2</div><h3>Unified feasibility interface</h3><p>One formulation, solved either as a constrained nonlinear program (IPOPT) or a differentiable least-squares relaxation (Theseus / L-BFGS). Instantiated for reachability, collision avoidance, and controller-level executability.</p></div>
+      <div class="step"><div class="k">3</div><h3>Cross-embodiment, no retraining</h3><p>The same task-space prior transfers zero-shot across simulated manipulator arms and environments by changing <i>only</i> the inference-time optimization problem — improving grasp quality, task success, and executability.</p></div>
+    </div>
+    <div class="callout"><b>Key idea:</b> feasibility is imposed as an explicit hard or soft constraint over the reverse process — not as a soft gradient that trades fidelity against satisfaction — while a regularizer on the correction keeps every sample close to the pretrained prior.</div>
+  </div>
+</section>
+
+<section id="applications" class="section">
+  <div class="wrap">
+    <p class="eyebrow">Applications</p>
+    <h2 class="section-title">Two settings, one frozen prior</h2>
+    <p class="section-lead">We instantiate the feasibility cost <span class="mono">J</span> for dexterous grasp synthesis (reachability + collision) and for image-conditioned dynamic manipulation (controller-level trackability).</p>
+
+    <div class="media-row cols-1" style="margin-top:10px;">
+      <figure class="figure-card">
+        <img src="assets/img/clutter.png" alt="Collision-aware dexterous grasps across Obstacle, Clutter, and Walls environments." />
+        <figcaption><b>Dexterous grasping with composed kinematic + collision constraints.</b> Adding the environment collision cost <span class="mono">J<sub>coll</sub></span> to the feasibility module yields grasps that respect <i>Obstacle</i>, <i>Clutter</i>, and <i>Walls</i> while preserving grasp quality — the diffusion model and arm configuration stay fixed.</figcaption>
+      </figure>
+    </div>
+
+    <div class="media-row cols-1" style="margin-top:26px;">
+      <figure class="figure-card">
+        <img src="assets/img/tasks.png" alt="Example visuomotor manipulation tasks: tabletop pick-and-place and drawer opening on the Dynaarm and Franka." />
+        <figcaption><b>Image-conditioned manipulation.</b> A floating-gripper Diffusion Transformer predicts short task-space trajectories from images, grounded to embodied arms through the controller-level executability cost <span class="mono">J<sub>dyn</sub></span>. Tasks: tabletop pick-and-place (top) and drawer opening (bottom), each on the Dynaarm and Franka.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="hardware" class="section">
+  <div class="wrap">
+    <p class="eyebrow">Real-World Deployment</p>
+    <h2 class="section-title">Zero-shot to hardware across four environments</h2>
+    <p class="section-lead">The dexterous policy is deployed on a physical Franka Panda + XHand with <b>no retraining or fine-tuning</b>. Each clip compares the <b>gradient-guidance baseline (left)</b> against <b>our optimization guidance (right)</b>; our corrections preserve grasp structure while accounting for environment collisions.</p>
+    <div class="task-grid">
+      <div class="task"><video src="assets/video/clip_floor.mp4" muted loop playsinline preload="metadata" data-lazy></video>
+        <div class="body"><span class="tag">Floor</span><h3>Open tabletop</h3><p>Even on the simplest scene, the baseline can satisfy collision while drifting off useful grasp modes; ours keeps the grasp.</p></div></div>
+      <div class="task"><video src="assets/video/clip_walls.mp4" muted loop playsinline preload="metadata" data-lazy></video>
+        <div class="body"><span class="tag">Walls</span><h3>Confined workspace</h3><p>Tight side walls shrink the reachable, collision-free set; the optimized correction stays inside it.</p></div></div>
+      <div class="task"><video src="assets/video/clip_clutter.mp4" muted loop playsinline preload="metadata" data-lazy></video>
+        <div class="body"><span class="tag">Clutter</span><h3>Surrounded by objects</h3><p>Dense neighbors demand precise approach poses while still securing the target object.</p></div></div>
+      <div class="task"><video src="assets/video/clip_tunnels.mp4" muted loop playsinline preload="metadata" data-lazy></video>
+        <div class="body"><span class="tag">Tunnels</span><h3>Narrow passage</h3><p>The hardest environment: the hand must reach through a constrained opening to grasp.</p></div></div>
+    </div>
+    <figure class="figure-card" style="margin-top:26px;">
+      <img src="assets/img/hardware_setup.png" alt="The four hardware environments: Floor, Walls, Clutter, and Tunnels." />
+      <figcaption><b>Hardware environments.</b> The four real-world settings used for deployment — <i>Floor</i>, <i>Walls</i>, <i>Clutter</i>, and <i>Tunnels</i> — evaluated on two representative objects (Mug, Spices). Reported as initial deployment evidence that the same corrections transfer zero-shot to physical robots.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="results" class="section">
+  <div class="wrap">
+    <p class="eyebrow">Results</p>
+    <h2 class="section-title">Better feasibility–success trade-off than projection &amp; gradient guidance</h2>
+    <p class="section-lead">Dexterous grasping: 1,200 grasps over 30 objects &times; 8 grasps &times; 5 base poses, a single shared diffusion checkpoint deployed on both arms with only <span class="mono">J<sub>IK</sub></span> swapped.</p>
+
+    <div class="table-scroll">
+      <table class="results">
+        <thead>
+          <tr>
+            <th>Arm</th><th>Method</th>
+            <th>SR<sup>(1)</sup> [%] &uarr;</th>
+            <th>SR<sup>IK</sup> [%] &uarr;</th>
+            <th>E<sub>fc</sub> (&times;10<sup>3</sup>) &darr;</th>
+            <th>Q<sub>1</sub> (&times;10<sup>&minus;3</sup>) &uarr;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ref-row">
+            <td>&mdash;</td><td>DDIM<sup>&dagger;</sup> <span class="rowtag">floating, upper bound</span></td>
+            <td>75.0</td><td>N/A</td><td>0.01</td><td>16.0</td>
+          </tr>
+          <tr class="group-start">
+            <td rowspan="5" class="armcell">Dynaarm</td>
+            <td>DDIM (cuRobo snap)</td><td>27.0</td><td>54.6</td><td>2.37</td><td>6.5</td>
+          </tr>
+          <tr><td>Projection Guidance</td><td>23.7</td><td class="best">99.9</td><td>0.72</td><td>6.8</td></tr>
+          <tr><td>Gradient Guidance</td><td>58.8</td><td class="second">99.3</td><td>0.97</td><td>12.8</td></tr>
+          <tr><td>Ours (Theseus)</td><td class="second">63.5</td><td>95.8</td><td class="second">0.26</td><td class="second">14.5</td></tr>
+          <tr><td>Ours (IPOPT)</td><td class="best">69.8</td><td>96.4</td><td class="best">0.20</td><td class="best">15.2</td></tr>
+          <tr class="group-start">
+            <td rowspan="5" class="armcell">Franka</td>
+            <td>DDIM (cuRobo snap)</td><td>33.7</td><td>83.7</td><td>2.02</td><td>7.1</td>
+          </tr>
+          <tr><td>Projection Guidance</td><td>37.4</td><td class="best">100.0</td><td>1.19</td><td>8.1</td></tr>
+          <tr><td>Gradient Guidance</td><td>50.9</td><td>97.9</td><td>1.04</td><td>11.1</td></tr>
+          <tr><td>Ours (Theseus)</td><td class="second">61.0</td><td>98.3</td><td class="second">0.23</td><td class="second">14.1</td></tr>
+          <tr><td>Ours (IPOPT)</td><td class="best">71.0</td><td class="second">99.8</td><td class="best">0.06</td><td class="best">15.7</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="legend"><b>Bold</b> = best, <u>underline</u> = second best. SR<sup>(1)</sup>: per-(object,pose) success; SR<sup>IK</sup>: fraction kinematically reachable; E<sub>fc</sub>: force-closure violation; Q<sub>1</sub>: grasp wrench quality. Our methods recover grasp quality near the floating-gripper upper bound while keeping feasibility above 95%. (IPOPT trades ~46&ndash;69&times; runtime over DDIM for hard constraint satisfaction.)</p>
+
+    <p class="section-lead" style="margin-top:34px;">Image-conditioned manipulation: a single floating-gripper prior grounded to each arm through the controller-level cost <span class="mono">J<sub>dyn</sub></span>, evaluated on 100 environments (mean &plusmn; std over 4 runs).</p>
+    <div class="table-scroll">
+      <table class="results">
+        <thead>
+          <tr>
+            <th>Task</th><th>Method</th>
+            <th>Dynaarm SR<sub>task</sub> &uarr;</th>
+            <th>Dynaarm SR<sub>sub</sub> &uarr;</th>
+            <th>Franka SR<sub>task</sub> &uarr;</th>
+            <th>Franka SR<sub>sub</sub> &uarr;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ref-row">
+            <td rowspan="5" class="armcell">Drawer</td>
+            <td>DDIM<sup>&dagger;</sup> <span class="rowtag">upper bound</span></td>
+            <td>99.5<span class="std"> ±1.0</span></td><td>100.0<span class="std"> ±0.0</span></td>
+            <td>99.5<span class="std"> ±1.0</span></td><td>100.0<span class="std"> ±0.0</span></td>
+          </tr>
+          <tr><td>DDIM</td><td>79.5<span class="std"> ±1.9</span></td><td>84.0<span class="std"> ±0.8</span></td><td>57.8<span class="std"> ±2.2</span></td><td>66.3<span class="std"> ±3.1</span></td></tr>
+          <tr><td>Gradient Guidance (&sigma;)</td><td>79.8<span class="std"> ±1.7</span></td><td class="second">85.0<span class="std"> ±1.6</span></td><td>57.8<span class="std"> ±7.8</span></td><td>66.8<span class="std"> ±6.8</span></td></tr>
+          <tr><td>Gradient Guidance (x<sub>t</sub>-nudge)</td><td class="second">79.8<span class="std"> ±3.3</span></td><td>83.8<span class="std"> ±3.0</span></td><td class="second">58.0<span class="std"> ±2.4</span></td><td class="second">67.0<span class="std"> ±2.8</span></td></tr>
+          <tr><td>Ours (L-BFGS)</td><td class="best">81.8<span class="std"> ±2.9</span></td><td class="best">87.3<span class="std"> ±2.9</span></td><td class="best">60.0<span class="std"> ±3.4</span></td><td class="best">70.0<span class="std"> ±1.6</span></td></tr>
+          <tr class="ref-row group-start">
+            <td rowspan="5" class="armcell">Pick &amp; Place</td>
+            <td>DDIM<sup>&dagger;</sup> <span class="rowtag">upper bound</span></td>
+            <td>62.5<span class="std"> ±6.2</span></td><td>95.3<span class="std"> ±2.1</span></td>
+            <td>62.5<span class="std"> ±6.2</span></td><td>95.3<span class="std"> ±2.1</span></td>
+          </tr>
+          <tr><td>DDIM</td><td>26.0<span class="std"> ±2.0</span></td><td>63.3<span class="std"> ±3.3</span></td><td class="second">44.0<span class="std"> ±4.5</span></td><td>89.0<span class="std"> ±3.4</span></td></tr>
+          <tr><td>Gradient Guidance (&sigma;)</td><td class="second">29.3<span class="std"> ±4.3</span></td><td class="best">69.3<span class="std"> ±4.6</span></td><td>41.0<span class="std"> ±1.4</span></td><td class="second">92.3<span class="std"> ±1.3</span></td></tr>
+          <tr><td>Gradient Guidance (x<sub>t</sub>-nudge)</td><td>26.3<span class="std"> ±3.4</span></td><td class="second">63.3<span class="std"> ±5.0</span></td><td>43.3<span class="std"> ±1.7</span></td><td>90.3<span class="std"> ±3.8</span></td></tr>
+          <tr><td>Ours (L-BFGS)</td><td class="best">41.8<span class="std"> ±3.8</span></td><td>66.0<span class="std"> ±3.6</span></td><td class="best">67.0<span class="std"> ±3.4</span></td><td class="best">98.3<span class="std"> ±1.3</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="legend"><b>Bold</b> = best among embodiment-aware methods, <u>underline</u> = second best. On the harder Pick-and-Place task our method clearly outperforms unguided DDIM and both gradient-guidance baselines on both embodiments — +15.8&nbsp;pp (Dynaarm) and +23.0&nbsp;pp (Franka) task success — while subtask success on the Franka approaches the unembodied upper bound at 98.3%.</p>
+
+    <div class="media-row cols-1" style="margin-top:30px;">
+      <figure class="figure-card">
+        <img src="assets/img/results_bar.png" alt="Grasp success rate by base-pose difficulty for each method on the Dynaarm and Panda, stratified into easy and hard poses." />
+        <figcaption><b>Grasp success by base-pose difficulty.</b> Per-method success on the Dynaarm and Panda, stratified into easy and hard reach configurations. Faded outer bars: SR<sup>(1)</sup>; hatched inner bars: SR<sup>aff</sup>. Our optimization-guided variants (Theseus, IPOPT) hold their advantage most strongly on the hard poses, where reachability is scarce.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="bibtex" class="section">
+  <div class="wrap">
+    <p class="eyebrow">Citation</p>
+    <h2 class="section-title">BibTeX</h2>
+    <div class="bibtex-box">
+      <button class="copy-btn" type="button">Copy</button>
+<pre class="bibtex">@article{bodmer2026grounding,
+  title   = {Grounding Generative Policies in Physics:
+             Optimization-Guided Diffusion for Robot Control},
+  author  = {Bodmer, Sabrina and Zurbr{\"u}gg, Ren{\'e} and Portela, Tifanny
+             and Ma, Hao and Didier, Alexandre and Hutter, Marco
+             and Jones, Colin and Zeilinger, Melanie},
+  journal = {arXiv preprint},
+  year    = {2026}
+}</pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><b>Grounding Generative Policies in Physics</b> &mdash; ETH Zurich &amp; EPFL.</p>
+    <p class="muted-foot">Correspondence: sabodmer@ethz.ch, zrene@ethz.ch</p>
+  </div>
+</footer>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>
