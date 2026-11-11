@@ -21,6 +21,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/css/style.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" />
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true}]})"></script>
 </head>
 <body>
 
@@ -57,7 +60,7 @@
     </div>
 
     <figure class="hero-figure">
-      <img src="assets/img/teaser.png" alt="One task-space diffusion prior reused across robot embodiments, collision-avoidance, and controller dynamics by swapping only an inference-time optimization module." />
+      <img src="assets/img/overview.png" alt="One task-space diffusion prior reused across robot embodiments, collision-avoidance, and controller dynamics by swapping only an inference-time optimization module." />
       <figcaption><b>One frozen prior, many feasible deployments.</b> A shared task-space diffusion prior — for dexterous grasps or visuomotor trajectories — is grounded to a target robot by an <b>optimization-guided denoising</b> module. Swapping only the inference-time feasibility objectives (embodiment, collision avoidance, controller dynamics) produces feasible grasp predictions and executable policy rollouts across arms, with no retraining.</figcaption>
     </figure>
   </div>
@@ -101,10 +104,10 @@
     <p class="eyebrow">Method</p>
     <h2 class="section-title">Replace the DDIM perturbation with an optimized correction</h2>
     <p class="section-lead">A DDIM reverse step splits into a deterministic model prediction <span class="mono">&mu;<sub>&theta;</sub>(x<sub>k</sub>,k)</span> plus a stochastic perturbation <span class="mono">&sigma;<sub>k</sub>&omega;</span>. We keep the prediction, but replace the random <span class="mono">&omega;</span> with an optimization variable <span class="mono">&delta;<sub>k</sub></span> that enforces feasibility — so each step stays close to the pretrained sampling trajectory.</p>
-    <figure class="figure-card">
-      <img src="assets/img/overview.png" alt="Optimization-guided diffusion: a task-space prior generates a reverse step; the DDIM perturbation is replaced by a structured correction from a constrained optimization problem with embodiment- and environment-specific costs." />
-      <figcaption><b>Optimization-guided diffusion.</b> A task-space diffusion prior generates an initial reverse denoising step. Instead of sampling the DDIM perturbation <span class="mono">&omega;<sub>k</sub></span>, we replace it with a structured correction <span class="mono">&delta;<sub>k</sub></span> obtained from a constrained optimization problem. The objective minimizes the perturbation magnitude while incorporating embodiment- and environment-specific costs and constraints (<span class="mono">J</span>, <span class="mono">&Xscr;<sub>target</sub></span>, <span class="mono">&Xscr;<sub>init</sub></span>). By changing only this constraint module, the same frozen prior is reused across different manipulators.</figcaption>
-    </figure>
+    <div class="figure-card" style="text-align:center;padding:18px 12px;overflow-x:auto;">
+      $$x_{k-1} = \mu_\theta(x_k, k) + \sigma_k\,\textcolor{#E6550D}{\delta_k}$$
+      $$\textcolor{#E6550D}{\delta_k^\star} = \arg\min_{\textcolor{#E6550D}{\delta}}\; \tfrac12\lVert\textcolor{#E6550D}{\delta}\rVert^2 + J(x_{k-1}) \quad \text{s.t.}\quad x_{k-1}\in\mathcal{X}_{\mathrm{target}},\; x_k\in\mathcal{X}_{\mathrm{init}}$$
+    </div>
     <div class="steps">
       <div class="step"><div class="k">1</div><h3>Optimization-constrained denoising</h3><p>An inference-time framework that swaps the DDIM sampling perturbation for a constrained optimization variable, applying small, structured corrections to a frozen diffusion prior — admitting a clean MAP interpretation.</p></div>
       <div class="step"><div class="k">2</div><h3>Unified feasibility interface</h3><p>One formulation, solved either as a constrained nonlinear program (IPOPT) or a differentiable least-squares relaxation (Theseus / L-BFGS). Instantiated for reachability, collision avoidance, and controller-level executability.</p></div>
